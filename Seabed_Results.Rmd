@@ -1,0 +1,337 @@
+---
+title: "Seabed_Results"
+output: pdf_document
+date: "2025-02-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries, message=FALSE, warning=FALSE}
+#Load in packages
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+library(forcats)
+library(gridExtra)
+
+setwd("N:/MP_Noor") #set working directory
+```
+
+```{r bring in files}
+#load in excel files
+ash <- read_excel("../Data/Processed/ash_rp_sbedm_t.xls")
+sne <- read_excel("../Data/Processed/sne_rp_sbedm_t.xls")
+ew <- read_excel("../Data/Processed/ew_rp_sbedm_t.xls")
+vw <- read_excel("../Data/Processed/vw_rp_sbedm_t.xls")
+nynjb_south <- read_excel("../Data/Processed/ny_s_rp_sbedm_t.xls")
+nynjb_north <- read_excel("../Data/Processed/ny_n_rp_sbedm_t.xls")
+```
+
+```{r format ash}
+# create list of seabed form names corresponding to the VALUE col in each dataset
+seabedforms <- c("Depression", "Mid Flat", "Upper Flat", "Low Slope", "Scarp", "Side Slope", "Upper Slope")
+
+# reformat ash to replace VALUE with correct seabed form names
+ash <- ash %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent area coverage
+
+# fix the order of seabed forms for plotting
+ash$SEABED <- forcats::fct_inorder(ash$SEABED)
+```
+
+```{r plot ash}
+# create ash bar plot
+ash_plot <- ash %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Atlantic Shores Shelf") +
+  coord_cartesian(ylim = c(0,50))
+
+ash_plot # show plot
+
+```
+
+```{r format sne}
+# reformat sne with seabed form names
+sne <- sne %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) # calculate percent coverage
+
+sne$SEABED <- forcats::fct_inorder(sne$SEABED) #fix order for plotting
+```
+
+```{r sne plot}
+# create bar plot for sne
+sne_plot <- sne %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Southern New England") +
+  coord_cartesian(ylim = c(0,55))
+
+sne_plot #show plot
+
+```
+
+```{r format ew}
+# reformat ew with seabed form names
+ew <- ew %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+ew$SEABED <- forcats::fct_inorder(ew$SEABED) #fix order for plotting
+```
+
+```{r plot ew}
+# create bar plot of ew
+ew_plot <- ew %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Empire Wind") +
+  coord_cartesian(ylim = c(0,85))
+
+ew_plot #show plot
+
+```
+
+```{r format nynjb_north}
+#reformat nynjb_north with seabed form names
+nynjb_north <- nynjb_north %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+nynjb_north$SEABED <- forcats::fct_inorder(nynjb_north$SEABED) # fix order for plotting
+```
+
+```{r plot nynjb_north}
+#create bar plot
+nynjb_north_plot <- nynjb_north %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "NYNJB North") +
+  coord_cartesian(ylim = c(0,55))
+
+nynjb_north_plot #show plot
+
+```
+
+```{r format nynjb_south}
+#reformat nynjb_south with seabed form names
+nynjb_south <- nynjb_south %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+nynjb_south$SEABED <- forcats::fct_inorder(nynjb_south$SEABED) # fix order for plotting
+```
+
+```{r plot nynjb_south}
+#create bar graph
+nynjb_south_plot <- nynjb_south %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "NYNJB South") +
+  coord_cartesian(ylim = c(0,45))
+
+nynjb_south_plot #show plot
+
+```
+
+```{r format vw}
+#reformat vw with seabed form names
+vw <- vw %>%
+  mutate(VALUE = seabedforms) %>%
+  rename(SEABED = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+vw$SEABED <- forcats::fct_inorder(vw$SEABED) #fix order for plotting
+```
+
+```{r plot vw}
+#create plot
+vw_plot <- vw %>%
+  ggplot(aes(x=SEABED, y=PERCENT, fill = SEABED)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Vineyard Wind") +
+  coord_cartesian(ylim = c(0,70))
+
+vw_plot #show plot
+
+```
+
+```{r}
+#arrange all larger regional plots horizontally for comparison
+grid.arrange(sne_plot, nynjb_north_plot, nynjb_south_plot, nrow=3)
+```
+
+```{r}
+#arrange all larger regional plots vertically for comparison
+grid.arrange(sne_plot, nynjb_north_plot, nynjb_south_plot, ncol=3)
+```
+
+```{r}
+#save as object
+seabed_regions_bar <- arrangeGrob(sne_plot, nynjb_north_plot, nynjb_south_plot, ncol=3)
+```
+
+```{r}
+# save as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/seabed_regions_barplot.png", seabed_regions_bar)
+```
+
+```{r}
+# add new column and label the lines
+sne$Dataset <- "SNE"
+nynjb_north$Dataset <- "NYNJB North"
+nynjb_south$Dataset <- "NYNJB South"
+
+# Create line plot
+ggplot() +
+  geom_line(data = sne, aes(x = SEABED, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  geom_line(data = nynjb_north, aes(x = SEABED, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  geom_line(data = nynjb_south, aes(x = SEABED, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  scale_color_manual(values = c("SNE" = "black", "NYNJB North" = "red", "NYNJB South" = "blue")) +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 8)) +
+  labs(color = "Dataset")
+
+```
+
+```{r}
+#save as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/seabed_regions_lineplot.png", height = 4, width = 6, dpi = 300)
+```
+
+
+```{r}
+#save plots comparing ash and corresponding nynjb_south region
+ash_south <- arrangeGrob(ash_plot, nynjb_south_plot, nrow=2)
+#ash_south
+```
+
+```{r}
+# save as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/seabed_ASH_NYNJBSouth.png", ash_south)
+```
+
+```{r}
+# save plots comparing ew and corresponding nynjb_north region
+ew_north <- arrangeGrob(ew_plot, nynjb_north_plot, nrow=2)
+```
+
+```{r}
+#save as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/seabed_EW_NYNJBNorth.png", ew_north)
+```
+
+```{r}
+# save plots comparing vw and corresponding sne region
+vw_sne <- arrangeGrob(vw_plot, sne_plot, nrow=2)
+```
+
+```{r}
+#save as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/seabed_VW_SNE.png", vw_sne)
+```
+
+
+```{r}
+# create list of dataset names corresponding to the datasets
+dataset_names <- c("ASH", "EW", "NYNJB_NORTH", "NYNJB_SOUTH", "SNE", "VW")
+# list of datasets
+datasets <- list(ash, ew, nynjb_north, nynjb_south, sne, vw)
+
+# create function to add column and populate it with the appropriate dataset name
+create_column <- function(datasets, dataset_names) {
+  lapply(seq_along(datasets), function(i) {
+    df <- datasets[[i]]
+    # Use the name from dataset_names corresponding to the index `i`
+    df <- df %>% mutate("ZONE-CODE" = dataset_names[i])
+    return(df)
+  })
+}
+
+# call function
+new_datasets <- create_column(datasets, dataset_names)
+
+# extract out each dataset separately
+ash <- new_datasets[[1]]
+ew <- new_datasets[[2]]
+nynjb_north <- new_datasets[[3]]
+nynjb_south <- new_datasets[[4]]
+sne <- new_datasets[[5]]
+vw <- new_datasets[[6]]
+
+```
+
+```{r}
+# list of datasets
+datasets <- list(ash, ew, nynjb_north, nynjb_south, sne, vw)
+
+## create function to select out columns 1, 3, and 4 and then pivot table
+pivoted <- function(datasets) {
+  lapply(datasets, function(df) {
+    df <- df %>%
+      select(1,3,4) %>%
+      pivot_wider(names_from = SEABED, values_from = PERCENT)
+    df[,1] <- toupper(df[,1]) #make all text in first column uppercase
+    return(df)
+  })
+  
+  
+}
+
+# call function
+pivoted_data <- pivoted(datasets)
+
+# extract out each dataset separately
+ash <- pivoted_data[[1]]
+ew <- pivoted_data[[2]]
+nynjb_north <- pivoted_data[[3]]
+nynjb_south <- pivoted_data[[4]]
+sne <- pivoted_data[[5]]
+vw <- pivoted_data[[6]]
+```
+
+```{r}
+nynjb_north <- nynjb_north %>%
+  rename("ZONE-CODE" = "Dataset")
+
+nynjb_south <- nynjb_south %>%
+  rename("ZONE-CODE" = "Dataset")
+
+sne <- sne %>%
+  rename("ZONE-CODE" = "Dataset")
+```
+
+
+```{r}
+# join all dfs
+joined_df <- rbind(ash, ew, nynjb_north, nynjb_south, sne, vw)
+```
+
+```{r}
+#save df as csv
+write.csv(joined_df, file = "N:/MP_Noor/Data/Processed/seabed_results.csv")
+```
+

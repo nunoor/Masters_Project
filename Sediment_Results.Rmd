@@ -1,0 +1,338 @@
+---
+title: "Sediment Results"
+output: pdf_document
+date: "2025-01-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries, message=FALSE, warning=FALSE}
+#install.packages("ggplot2") #install ggplot2
+#install.packages("readxl")
+#install.packages("forcats")
+#install.packages("gridExtra")
+#Load in packages
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+library(forcats)
+library(gridExtra)
+
+#set working directory
+setwd("N:/MP_Noor")
+```
+
+```{r bring in files}
+# load in excel files
+ash <- read_excel("../Data/Processed/ash_rpm_t.xls")
+sne <- read_excel("../Data/Processed/sne_rpm_t.xls")
+ew <- read_excel("../Data/Processed/ew_rpm_t.xls")
+vw <- read_excel("../Data/Processed/vw_rpm_t.xls")
+nynjb_south <- read_excel("../Data/Processed/ny_s_rpm_t.xls")
+nynjb_north <- read_excel("../Data/Processed/ny_n_rpm_t.xls")
+```
+
+```{r format ash}
+# create list of sediment types
+sedimenttypes <- c("Silt", "Very Fine Sand", "Fine Sand", "Medium Sand", "Coarse Sand", "Very Coarse Sand", "Gravel/Granule")
+
+# reformat to replace values to corresponding sediment types
+ash <- ash %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) # calculate percent area covered
+
+#order the sediment types correctly for plotting
+ash$SEDIMENT <- forcats::fct_inorder(ash$SEDIMENT) 
+```
+
+```{r plot ash}
+# create bar plot of ASH 
+ash_plot <- ash %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) + # set x and y
+  geom_col() +
+  theme_light() + #specify theme
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Atlantic Shores Shelf") + #add label
+  coord_cartesian(ylim = c(0,65)) #set the coordinates to view
+
+ash_plot # show plot
+
+```
+
+```{r format sne}
+# reformat sne with sedinemt types
+sne <- sne %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+sne$SEDIMENT <- forcats::fct_inorder(sne$SEDIMENT) #fix order of types for plotting
+```
+
+```{r sne plot}
+# create sne bar plot
+sne_plot <- sne %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Southern New England") +
+  coord_cartesian(ylim = c(0,65))
+
+#show plot
+sne_plot
+  
+```
+
+```{r format ew}
+#reformat ew with sediment types
+ew <- ew %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ew$SEDIMENT <- forcats::fct_inorder(ew$SEDIMENT) # fix order of types for plotting
+```
+
+```{r plot ew}
+# create ew bar plot
+ew_plot <- ew %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "Empire Wind") +
+  coord_cartesian(ylim = c(0,65))
+
+ew_plot # show plot
+```
+
+```{r format nynjb_north}
+
+nynjb_north <- nynjb_north[-c(1), ] # get rid of first row; (it was empty and was added in ArcGIS process for some reason)
+
+# reformat with sediment types
+nynjb_north <- nynjb_north %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT)*100)) # calculate percent coverage
+
+nynjb_north$SEDIMENT <- forcats::fct_inorder(nynjb_north$SEDIMENT) #fix order for plotting
+```
+
+```{r plot nynjb_north}
+# create bar plot
+nynjb_north_plot <- nynjb_north %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title="NYNJB North") +
+  coord_cartesian(ylim = c(0,65))
+
+nynjb_north_plot #show plot
+```
+
+```{r format nynjb_south}
+# reformat with corresponding sediment type names
+nynjb_south <- nynjb_south %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+nynjb_south$SEDIMENT <- forcats::fct_inorder(nynjb_south$SEDIMENT) #fix order for plotting
+```
+
+```{r plot nynjb_south}
+# create bar plot 
+nynjb_south_plot <- nynjb_south %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title = "NYNJB South") +
+  coord_cartesian(ylim = c(0,65))
+
+nynjb_south_plot #show plot
+```
+
+```{r format vw}
+# reformat with corresponding sediment type names
+vw <- vw %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+vw$SEDIMENT <- forcats::fct_inorder(vw$SEDIMENT) #fix order for plotting
+```
+
+```{r plot vw}
+# create vw bar plot
+vw_plot <- vw %>%
+  ggplot(aes(x=SEDIMENT, y=PERCENT, fill = SEDIMENT)) +
+  geom_col() +
+  theme_light() +
+  theme(axis.text.x = element_text(size=8), legend.position = "none", axis.title.x = element_blank()) +
+  labs(title="Vineyard Wind") +
+  coord_cartesian(ylim = c(0,65))
+
+vw_plot #show plot
+```
+
+```{r}
+# plot to compare regions horizontal
+grid.arrange(sne_plot, nynjb_north_plot, nynjb_south_plot, nrow=3)
+```
+
+```{r}
+# plot to compare regions vertical
+grid.arrange(sne_plot, nynjb_north_plot, nynjb_south_plot, ncol=3)
+```
+
+```{r}
+# save as an object
+benhab_regions_bar <- arrangeGrob(sne_plot, nynjb_north_plot, nynjb_south_plot, ncol=3)
+```
+
+```{r}
+# save graph as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/benhab_regions_barplot.png", benhab_regions_bar)
+```
+
+```{r}
+# add a new column to each data frame to label the lines
+sne$Dataset <- "SNE"
+nynjb_north$Dataset <- "NYNJB North"
+nynjb_south$Dataset <- "NYNJB South"
+
+# create line plot
+ggplot() +
+  geom_line(data = sne, aes(x = SEDIMENT, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  geom_line(data = nynjb_north, aes(x = SEDIMENT, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  geom_line(data = nynjb_south, aes(x = SEDIMENT, y = PERCENT, color = Dataset, group = 1), linewidth = 1) +
+  scale_color_manual(values = c("SNE" = "black", "NYNJB North" = "red", "NYNJB South" = "blue")) +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 8)) +
+  labs(color = "Dataset")
+
+```
+
+```{r}
+# save graph as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/benhab_regions_lineplot.png", height = 4, width = 6, dpi = 300)
+```
+
+
+```{r}
+# save plots comparing ash and corresponding nynjb_south region
+ash_south <- arrangeGrob(ash_plot, nynjb_south_plot, nrow=2)
+#ash_south
+```
+
+```{r}
+# save plot as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/benhab_ASH_NYNJBSouth.png", ash_south)
+```
+
+```{r}
+# save plots comparing ew and corresponding nynjb_north region
+ew_north <- arrangeGrob(ew_plot, nynjb_north_plot, nrow=2)
+```
+
+```{r}
+# save plot as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/benhab_EW_NYNJBNorth.png", ew_north)
+```
+
+```{r}
+# save plots comparing vw and corresponding sne region
+vw_sne <- arrangeGrob(vw_plot, sne_plot, nrow=2)
+```
+
+```{r}
+# save graph as png
+ggsave(filename = "N:/MP_Noor/Data/Figures/benhab_VW_SNE.png", vw_sne)
+```
+```{r}
+# create list of dataset names corresponding to the datasets
+dataset_names <- c("ash", "ew", "nynjb_north", "nynjb_south", "sne", "vw")
+# list of datasets
+datasets <- list(ash, ew, nynjb_north, nynjb_south, sne, vw)
+
+# create function to add column and populate it with the appropriate dataset name
+create_column <- function(datasets, dataset_names) {
+  lapply(seq_along(datasets), function(i) {
+    df <- datasets[[i]]
+    # use the name from dataset_names corresponding to the index `i`
+    df <- df %>% mutate("ZONE-CODE" = dataset_names[i])
+    return(df)
+  })
+}
+
+# call function
+new_datasets <- create_column(datasets, dataset_names)
+
+# extract out each dataset separately
+ash <- new_datasets[[1]]
+ew <- new_datasets[[2]]
+nynjb_north <- new_datasets[[3]]
+nynjb_south <- new_datasets[[4]]
+sne <- new_datasets[[5]]
+vw <- new_datasets[[6]]
+```
+
+
+```{r}
+# list of datasets
+datasets <- list(ash, ew, nynjb_north, nynjb_south, sne, vw)
+
+# create function to select out columns 1, 3, and 4 and then pivot table
+pivoted <- function(datasets) {
+  lapply(datasets, function(df) {
+    df <- df %>%
+      select(1,3,4) %>%
+      pivot_wider(names_from = SEDIMENT, values_from = PERCENT)
+    df[,1] <- toupper(df[,1]) #make all text in first column uppercase
+    return(df)
+  })
+}
+
+#call function
+pivoted_data <- pivoted(datasets)
+
+# extract out each dataset separately
+ash <- pivoted_data[[1]]
+ew <- pivoted_data[[2]]
+nynjb_north <- pivoted_data[[3]]
+nynjb_south <- pivoted_data[[4]]
+sne <- pivoted_data[[5]]
+vw <- pivoted_data[[6]]
+```
+
+```{r}
+nynjb_north <- nynjb_north %>%
+  rename("ZONE-CODE" = "Dataset")
+
+nynjb_south <- nynjb_south %>%
+  rename("ZONE-CODE" = "Dataset")
+
+sne <- sne %>%
+  rename("ZONE-CODE" = "Dataset")
+
+```
+
+
+```{r}
+# join all datasets
+joined_df <- rbind(ash, ew, nynjb_north, nynjb_south, sne, vw)
+```
+
+```{r}
+# save as csv file
+write.csv(joined_df, file = "N:/MP_Noor/Data/Processed/sediment_results.csv")
+```

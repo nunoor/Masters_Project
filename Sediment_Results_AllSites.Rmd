@@ -1,0 +1,384 @@
+---
+title: "Sediment Results All Sites"
+output: pdf_document
+date: "2025-01-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries, message=FALSE, warning=FALSE}
+#install.packages("ggplot2") #install ggplot2
+#install.packages("readxl")
+#install.packages("forcats")
+#install.packages("gridExtra")
+#Load in packages
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+library(forcats)
+library(gridExtra)
+
+#set working directory
+setwd("N:/MP_Noor")
+getwd()
+```
+
+```{r bring in files}
+# load in excel files
+ocs0486 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0486mt.xls")
+ocs0487 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0487mt.xls")
+ocs0498 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0498mt.xls")
+ocs0499 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0499mt.xls")
+ocs0500 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0500mt.xls")
+ocs0501 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0501mt.xls")
+ocs0512 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0512mt.xls")
+ocs0517 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0517mt.xls")
+ocs0520 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0520mt.xls")
+ocs0521 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0521mt.xls")
+ocs0522 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0522mt.xls")
+ocs0532 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0532mt.xls")
+ocs0537 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0537mt.xls")
+ocs0538 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0538mt.xls")
+ocs0539 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0539mt.xls")
+ocs0541 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0541mt.xls")
+ocs0542 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0542mt.xls")
+ocs0544 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0544mt.xls")
+ocs0549 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0549mt.xls")
+ocs0534 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0534mt.xls")
+ocs0561 <- read_excel("N:/MP_Noor/Data/Processed/ocs-a_0561mt.xls")
+
+```
+
+```{r format}
+# create list of sediment types
+sedimenttypes <- c("Silt", "Very Fine Sand", "Fine Sand", "Medium Sand", "Coarse Sand", "Very Coarse Sand", "Gravel/Granule")
+
+# reformat to replace values to corresponding sediment types
+ocs0486 <- ocs0486 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) # calculate percent area covered
+
+#order the sediment types correctly for plotting
+ocs0486$SEDIMENT <- forcats::fct_inorder(ocs0486$SEDIMENT) 
+```
+
+
+```{r format}
+# reformat 
+ocs0487 <- ocs0487 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+ocs0487$SEDIMENT <- forcats::fct_inorder(ocs0487$SEDIMENT) #fix order of types for plotting
+```
+
+
+```{r format}
+#reformat with sediment types
+ocs0498 <-ocs0498 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0498$SEDIMENT <- forcats::fct_inorder(ocs0498$SEDIMENT) # fix order of types for plotting
+```
+
+
+```{r format}
+# reformat with sediment types
+ocs0499 <- ocs0499 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT)*100)) # calculate percent coverage
+
+ocs0499$SEDIMENT <- forcats::fct_inorder(ocs0499$SEDIMENT) #fix order for plotting
+```
+
+
+```{r format nynjb_south}
+# reformat with corresponding sediment type names
+ocs0500 <- ocs0500 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100) #calculate percent coverage
+
+ocs0500$SEDIMENT <- forcats::fct_inorder(ocs0500$SEDIMENT) #fix order for plotting
+```
+
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0501 <- ocs0501 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0501$SEDIMENT <- forcats::fct_inorder(ocs0501$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0512 <- ocs0512 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0512$SEDIMENT <- forcats::fct_inorder(ocs0512$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0517 <- ocs0517 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0517$SEDIMENT <- forcats::fct_inorder(ocs0517$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0520 <- ocs0520 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0520$SEDIMENT <- forcats::fct_inorder(ocs0520$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0521 <- ocs0521 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0521$SEDIMENT <- forcats::fct_inorder(ocs0521$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0522 <- ocs0522 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0522$SEDIMENT <- forcats::fct_inorder(ocs0522$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0532 <- ocs0532 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0532$SEDIMENT <- forcats::fct_inorder(ocs0532$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0534 <- ocs0534 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0534$SEDIMENT <- forcats::fct_inorder(ocs0534$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0537 <- ocs0537 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0537$SEDIMENT <- forcats::fct_inorder(ocs0537$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0538 <- ocs0538 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0538$SEDIMENT <- forcats::fct_inorder(ocs0538$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0539 <- ocs0539 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0539$SEDIMENT <- forcats::fct_inorder(ocs0539$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0541 <- ocs0541 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0541$SEDIMENT <- forcats::fct_inorder(ocs0541$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0542 <- ocs0542 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0542$SEDIMENT <- forcats::fct_inorder(ocs0542$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0544 <- ocs0544 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0544$SEDIMENT <- forcats::fct_inorder(ocs0544$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0549 <- ocs0549 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0549$SEDIMENT <- forcats::fct_inorder(ocs0549$SEDIMENT) #fix order for plotting
+```
+
+```{r format}
+# reformat with corresponding sediment type names
+ocs0561 <- ocs0561 %>%
+  mutate(VALUE = sedimenttypes) %>%
+  rename(SEDIMENT = VALUE) %>%
+  mutate(PERCENT = (COUNT/sum(COUNT))*100)
+
+ocs0561$SEDIMENT <- forcats::fct_inorder(ocs0561$SEDIMENT) #fix order for plotting
+```
+
+
+```{r}
+# create list of dataset names corresponding to the datasets
+dataset_names <- c("ocs0486", "ocs0487", "ocs0498", "ocs0499", "ocs0500", 
+                   "ocs0501", "ocs0512", "ocs0517", "ocs0520", "ocs0521", 
+                   "ocs0522", "ocs0532", "ocs0534", "ocs0537", "ocs0538", 
+                   "ocs0539", "ocs0541", "ocs0542", "ocs0544", "ocs0549", 
+                   "ocs0561")
+# list of datasets
+datasets <- list(ocs0486, ocs0487, ocs0498, ocs0499, ocs0500, ocs0501, ocs0512, 
+                 ocs0517, ocs0520, ocs0521, ocs0522, ocs0532, ocs0534, ocs0537,
+                 ocs0538, ocs0539, ocs0541, ocs0542, ocs0544, ocs0549, ocs0561 
+                 )
+
+# create function to add column and populate it with the appropriate dataset name
+create_column <- function(datasets, dataset_names) {
+  lapply(seq_along(datasets), function(i) {
+    df <- datasets[[i]]
+    # use the name from dataset_names corresponding to the index `i`
+    df <- df %>% mutate("ZONE-CODE" = dataset_names[i])
+    return(df)
+  })
+}
+
+# call function
+new_datasets <- create_column(datasets, dataset_names)
+
+# extract out each dataset separately
+ocs0486 <- new_datasets[[1]]
+ocs0487 <- new_datasets[[2]]
+ocs0498 <- new_datasets[[3]]
+ocs0499 <- new_datasets[[4]]
+ocs0500 <- new_datasets[[5]]
+ocs0501 <- new_datasets[[6]]
+ocs0512 <- new_datasets[[7]]
+ocs0517 <- new_datasets[[8]]
+ocs0520 <- new_datasets[[9]]
+ocs0521 <- new_datasets[[10]]
+ocs0522 <- new_datasets[[11]]
+ocs0532 <- new_datasets[[12]]
+ocs0534 <- new_datasets[[13]]
+ocs0537 <- new_datasets[[14]]
+ocs0538 <- new_datasets[[15]]
+ocs0539 <- new_datasets[[16]]
+ocs0541 <- new_datasets[[17]]
+ocs0542 <- new_datasets[[18]]
+ocs0544 <- new_datasets[[19]]
+ocs0549 <- new_datasets[[20]]
+ocs0561 <- new_datasets[[21]]
+```
+
+
+```{r}
+# list of datasets
+datasets <- list(ocs0486, ocs0487, ocs0498, ocs0499, ocs0500, ocs0501, ocs0512, 
+                 ocs0517, ocs0520, ocs0521, ocs0522, ocs0532, ocs0534, ocs0537,
+                 ocs0538, ocs0539, ocs0541, ocs0542, ocs0544, ocs0549, ocs0561 
+                 )
+
+# create function to select out columns 1, 3, and 4 and then pivot table
+pivoted <- function(datasets) {
+  lapply(datasets, function(df) {
+    df <- df %>%
+      select(1,3,4) %>%
+      pivot_wider(names_from = SEDIMENT, values_from = PERCENT)
+    df[,1] <- toupper(df[,1]) #make all text in first column uppercase
+    return(df)
+  })
+}
+
+#call function
+pivoted_data <- pivoted(datasets)
+
+# extract out each dataset separately
+ocs0486 <- pivoted_data[[1]]
+ocs0487 <- pivoted_data[[2]]
+ocs0498 <- pivoted_data[[3]]
+ocs0499 <- pivoted_data[[4]]
+ocs0500 <- pivoted_data[[5]]
+ocs0501 <- pivoted_data[[6]]
+ocs0512 <- pivoted_data[[7]]
+ocs0517 <- pivoted_data[[8]]
+ocs0520 <- pivoted_data[[9]]
+ocs0521 <- pivoted_data[[10]]
+ocs0522 <- pivoted_data[[11]]
+ocs0532 <- pivoted_data[[12]]
+ocs0534 <- pivoted_data[[13]]
+ocs0537 <- pivoted_data[[14]]
+ocs0538 <- pivoted_data[[15]]
+ocs0539 <- pivoted_data[[16]]
+ocs0541 <- pivoted_data[[17]]
+ocs0542 <- pivoted_data[[18]]
+ocs0544 <- pivoted_data[[19]]
+ocs0549 <- pivoted_data[[20]]
+ocs0561 <- pivoted_data[[21]]
+
+```
+
+```{r}
+# join all datasets
+joined_df <- rbind(ocs0486, ocs0487, ocs0498, ocs0499, ocs0500, ocs0501, ocs0512, 
+                 ocs0517, ocs0520, ocs0521, ocs0522, ocs0532, ocs0534, ocs0537,
+                 ocs0538, ocs0539, ocs0541, ocs0542, ocs0544, ocs0549, ocs0561 
+                 )
+```
+
+```{r}
+# save as csv file
+write.csv(joined_df, file = "N:/MP_Noor/Data/Processed/sediment_results_all_sites.csv")
+```

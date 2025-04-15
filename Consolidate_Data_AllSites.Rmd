@@ -1,0 +1,198 @@
+---
+title: "Consolidate_Data_All_Sites"
+output: pdf_document
+date: "2025-01-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load libraries, message=FALSE, warning=FALSE}
+#install.packages("ggplot2") #install ggplot2
+#install.packages("readxl")
+#Load in packages
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(readxl)
+library(tidyr)
+
+
+#set working directory
+setwd("N:/MP_Noor")
+```
+
+```{r upload files}
+#load in all files
+wind <- read_excel("N:/MP_Noor/Data/Processed/average_annual_wind_ms_all_sites.xls")
+depth <- read_excel("N:/MP_Noor/Data/Processed/average_depth_all_sites.xls")
+bottom_temp <- read.csv("N:/MP_Noor/Data/Processed/avg_bottom_temp_C_all_sites.csv")
+sediment <- read.csv("N:/MP_Noor/Data/Processed/sediment_results_all_sites.csv")
+seabed <- read.csv("N:/MP_Noor/Data/Processed/seabed_results_all_sites.csv")
+
+sst_fall <- read.csv("N:/MP_Noor/Data/Processed/sst_fall_summary_2.csv")
+sst_spr <- read.csv("N:/MP_Noor/Data/Processed/sst_spr_summary_2.csv")
+sst_sum <- read.csv("N:/MP_Noor/Data/Processed/sst_sum_summary_2.csv")
+sst_wint <- read.csv("N:/MP_Noor/Data/Processed/sst_wint_summary_2.csv")
+
+chlor_fall <- read.csv("N:/MP_Noor/Data/Processed/chlor_a_fall_summary_2.csv")
+chlor_spr <- read.csv("N:/MP_Noor/Data/Processed/chlor_a_spr_summary_2.csv")
+chlor_sum <- read.csv("N:/MP_Noor/Data/Processed/chlor_a_sum_summary_2.csv")
+chlor_wint <- read.csv("N:/MP_Noor/Data/Processed/chlor_a_wint_summary_2.csv")
+
+#sss_fall <- read.csv("N:/MP_Noor/Data/Processed/fall_sss_mean_2.csv")
+#sss_spr <- read.csv("N:/MP_Noor/Data/Processed/spr_sss_mean_2.csv")
+#sss_sum <- read.csv("N:/MP_Noor/Data/Processed/sum_sss_mean_2.csv")
+#sss_wint <- read.csv("N:/MP_Noor/Data/Processed/wint_sss_mean_2.csv")
+
+sla_fall <- read.csv("N:/MP_Noor/Data/Processed/sla_fall_summary_2.csv")
+sla_spr <- read.csv("N:/MP_Noor/Data/Processed/sla_spr_summary_2.csv")
+sla_sum <- read.csv("N:/MP_Noor/Data/Processed/sla_sum_summary_2.csv")
+sla_wint <- read.csv("N:/MP_Noor/Data/Processed/sla_wint_summary_2.csv")
+
+```
+
+
+```{r}
+# create list of zonecode names
+zone_codes <- c("OCS0486", "OCS0487", "OCS0498", "OCS0499", "OCS0500", 
+                "OCS0501", "OCS0512", "OCS0517", "OCS0520", "OCS0521", 
+                "OCS0522", "OCS0532", "OCS0534", "OCS0537", "OCS0538", 
+                "OCS0539", "OCS0541", "OCS0542", "OCS0544", "OCS0549", 
+                "OCS0561"
+)
+
+```
+
+
+```{r}
+
+# list of dataset names corresponding to datasets
+dataset_names <- c(
+  "sst_fall", "sst_spr", "sst_sum", "sst_wint",
+  "chlor_fall", "chlor_spr", "chlor_sum", "chlor_wint",
+  "sla_fall", "sla_spr", "sla_sum", "sla_wint"
+)
+
+#list of datasets
+datasets <- list(
+  sst_fall, sst_spr, sst_sum, sst_wint,
+  chlor_fall, chlor_spr, chlor_sum, chlor_wint,
+  sla_fall, sla_spr, sla_sum, sla_wint
+)
+
+# function to add the dataset name to each column
+rename_cols <- function(datasets, dataset_names) {
+  datasets <- mapply(function(df, name) {
+    df <- df %>%
+      select(1,5:6)
+    col_to_rename <- grep("mean$", names(df), value = TRUE)  # Find columns ending in "mean"
+    
+    if (length(col_to_rename) > 0) {
+      new_names <- paste0(col_to_rename, "_", name)  # Append dataset name to column name
+      names(df)[names(df) %in% col_to_rename] <- new_names  # Rename columns
+    }
+    
+    return(df)
+  }, datasets, dataset_names, SIMPLIFY = FALSE)  # Ensure output is a list
+  
+  return(datasets)
+}
+
+# call function
+datasets <- rename_cols(datasets, dataset_names)
+
+# extract each individual dataset
+sst_fall <- datasets[[1]]
+sst_spr <- datasets[[2]]
+sst_sum <- datasets[[3]]
+sst_wint <- datasets[[4]]
+chlor_fall <- datasets[[5]]
+chlor_spr <- datasets[[6]]
+chlor_sum <- datasets[[7]]
+chlor_wint <- datasets[[8]]
+sla_fall <- datasets[[9]]
+sla_spr <- datasets[[10]]
+sla_sum <- datasets[[11]]
+sla_wint <- datasets[[12]]
+```
+
+```{r}
+# Rename the column in wind and depth datasets
+depth <- depth %>%
+  rename("ZONE.CODE" = "ZONE-CODE") %>%
+  rename("MEAN_depth" = "MEAN") %>%
+  select(1, 4)
+
+wind <- wind %>%
+  rename("ZONE.CODE" = "ZONE-CODE") %>%
+  rename ("MEAN_wind" = "MEAN") %>%
+  select(1,4)
+
+bottom_temp <- bottom_temp %>%
+  rename("MEAN_bottom_temp" = "MEAN") %>%
+  select(1, 4)
+```
+
+
+```{r join_data}
+# Join data
+joined_dfs <- depth %>%
+  full_join(wind, by = "ZONE.CODE") %>%
+  full_join(sediment, by = "ZONE.CODE") %>%
+  full_join(seabed, by = "ZONE.CODE") %>%
+  full_join(bottom_temp, by = "ZONE.CODE") %>%
+  full_join(sst_fall, by = "ZONE.CODE") %>%
+  full_join(sst_spr, by = "ZONE.CODE") %>%
+  full_join(sst_sum, by = "ZONE.CODE") %>%
+  full_join(sst_wint, by = "ZONE.CODE") %>%
+  full_join(chlor_fall, by = "ZONE.CODE") %>%
+  full_join(chlor_spr, by = "ZONE.CODE") %>%  
+  full_join(chlor_sum, by = "ZONE.CODE") %>%
+  full_join(chlor_wint, by = "ZONE.CODE") %>%
+  full_join(sla_fall, by = "ZONE.CODE") %>%
+  full_join(sla_spr, by = "ZONE.CODE") %>%
+  full_join(sla_sum, by = "ZONE.CODE") %>%
+  full_join(sla_wint, by = "ZONE.CODE")
+
+
+```
+
+```{r}
+joined_dfs <- joined_dfs %>%
+  mutate(across(where(is.integer), as.numeric)) # Convert integer columns to numeric
+
+joined_dfs[is.na(joined_dfs)] <- 0.0001 # Make all NAs into 0.0001
+joined_dfs[joined_dfs == 0] <- 0.0001   # Make all 0's into 0.0001
+
+```
+
+```{r}
+# create zone code mapping
+zone_code_mapping <- joined_dfs$ZONE.CODE
+# make zonecode numeric
+joined_dfs$ZONE.CODE <- as.numeric(as.factor(joined_dfs$ZONE.CODE))
+head(joined_dfs)
+```
+
+
+```{r}
+#scale each df
+scaled_data <- as.data.frame(scale(joined_dfs))
+```
+
+```{r}
+#reinsert zone code mapping for labeling
+scaled_data$ZONE.CODE <- zone_code_mapping
+```
+
+```{r}
+scaled_data[is.na(scaled_data)] <- 0.0001 
+```
+
+
+```{r}
+# save as csv file
+write.csv(scaled_data, file = "N:/MP_Noor/Data/Processed/Joined_MODIS_all_sites.csv")
+```
